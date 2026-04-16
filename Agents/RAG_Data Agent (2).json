@@ -1,0 +1,932 @@
+{
+  "nodes": [
+    {
+      "id": "conversationalRetrievalQAChain_0",
+      "position": {
+        "x": -184.98366011244465,
+        "y": 279.8060071973559
+      },
+      "type": "customNode",
+      "data": {
+        "id": "conversationalRetrievalQAChain_0",
+        "label": "Conversational Retrieval QA Chain",
+        "version": 3.1,
+        "name": "conversationalRetrievalQAChain",
+        "type": "ConversationalRetrievalQAChain",
+        "baseClasses": [
+          "ConversationalRetrievalQAChain",
+          "BaseChain",
+          "Runnable"
+        ],
+        "category": "Chains",
+        "description": "Document QA - built on RetrievalQAChain to provide a chat history component",
+        "inputParams": [
+          {
+            "label": "Return Source Documents",
+            "name": "returnSourceDocuments",
+            "type": "boolean",
+            "optional": true,
+            "id": "conversationalRetrievalQAChain_0-input-returnSourceDocuments-boolean",
+            "display": true
+          },
+          {
+            "label": "Rephrase Prompt",
+            "name": "rephrasePrompt",
+            "type": "string",
+            "description": "Using previous chat history, rephrase question into a standalone question",
+            "warning": "Prompt must include input variables: {chat_history} and {question}",
+            "rows": 4,
+            "additionalParams": true,
+            "optional": true,
+            "default": "Given the following conversation and a follow up question, rephrase the follow up question to be a standalone question.\n\nChat History:\n{chat_history}\nFollow Up Input: {question}\nStandalone Question:",
+            "id": "conversationalRetrievalQAChain_0-input-rephrasePrompt-string",
+            "display": true
+          },
+          {
+            "label": "Response Prompt",
+            "name": "responsePrompt",
+            "type": "string",
+            "description": "Taking the rephrased question, search for answer from the provided context",
+            "warning": "Prompt must include input variable: {context}",
+            "rows": 4,
+            "additionalParams": true,
+            "optional": true,
+            "default": "I want you to act as a document that I am having a conversation with. Your name is \"AI Assistant\". Using the provided context, answer the user's question to the best of your ability using the resources provided.\nIf there is nothing in the context relevant to the question at hand, just say \"Hmm, I'm not sure\" and stop after that. Refuse to answer any question not about the info. Never break character.\n------------\n{context}\n------------\nREMEMBER: If there is no relevant information within the context, just say \"Hmm, I'm not sure\". Don't try to make up an answer. Never break character.",
+            "id": "conversationalRetrievalQAChain_0-input-responsePrompt-string",
+            "display": true
+          }
+        ],
+        "inputAnchors": [
+          {
+            "label": "Chat Model",
+            "name": "model",
+            "type": "BaseChatModel",
+            "id": "conversationalRetrievalQAChain_0-input-model-BaseChatModel",
+            "display": true
+          },
+          {
+            "label": "Vector Store Retriever",
+            "name": "vectorStoreRetriever",
+            "type": "BaseRetriever",
+            "id": "conversationalRetrievalQAChain_0-input-vectorStoreRetriever-BaseRetriever",
+            "display": true
+          },
+          {
+            "label": "Memory",
+            "name": "memory",
+            "type": "BaseMemory",
+            "optional": true,
+            "description": "If left empty, a default BufferMemory will be used",
+            "id": "conversationalRetrievalQAChain_0-input-memory-BaseMemory",
+            "display": true
+          },
+          {
+            "label": "Input Moderation",
+            "description": "Detect text that could generate harmful output and prevent it from being sent to the language model",
+            "name": "inputModeration",
+            "type": "Moderation",
+            "optional": true,
+            "list": true,
+            "id": "conversationalRetrievalQAChain_0-input-inputModeration-Moderation",
+            "display": true
+          }
+        ],
+        "inputs": {
+          "model": "{{groqChat_0.data.instance}}",
+          "vectorStoreRetriever": "{{pinecone_0.data.instance}}",
+          "memory": "{{bufferWindowMemory_0.data.instance}}",
+          "returnSourceDocuments": false,
+          "rephrasePrompt": "Given the following conversation and a follow up question, convert the follow up question into a clear standalone search query.\n\nChat History:\n{chat_history}\n\nUser Question:\n{question}\n\nStandalone Search Query:",
+          "responsePrompt": "You are a smart and friendly AI assistant.\n\nYour job is to help users find information from the database using the given context.\n\nContext: {context}\nChat History: {chat_history}\nUser Question: {question}\n\nInstructions:\n\nBe Conversational:\n\nTalk like a human (friendly tone).\n\nDo NOT sound like a system.\n\nAlways give a helpful answer.\n\nSmart Matching (IMPORTANT):\n\nDo NOT depend only on exact match.\n\nIf user says \"mark21\", try to match similar values like:\n\nmark\n\nmark 21\n\nmark21 (case insensitive)\n\nEven partial match is OK if it is closest.\n\nData Usage:\n\nUse ONLY the given context.\n\nDo NOT invent new data.\n\nField Filtering:\n\nReturn ONLY what the user asked.\n\nDo NOT return full JSON.\n\nDo NOT include _id, _rev or technical fields.\n\nIf Data Not Clearly Found:\n\nTry your best to find closest match from context.\n\nIf still not found, say politely:\n\"I couldn’t find an exact match, but here’s the closest information I found.\"\n\nAnswer Style:\n\nAlways respond in sentence format.\n\nKeep it simple and clean.\n\nBe slightly engaging (like a real chat assistant).\n\nExamples:\n\nUser: get mark21 data\nAnswer: I couldn’t find an exact match for \"mark21\", but I found a similar record for Mark. Mark is 28 years old and lives in Chennai. Do you want more details about him?\n\nUser: delip age\nAnswer: Delip's age is 25 🙂 Do you also need his mobile number?\n\nUser: mobile number of arun\nAnswer: Arun's mobile number is 9539471537 👍 Anything else you'd like to check?\n\nFinal Rule:\n\nAlways try to give an answer.\n\nNever directly say \"Not found\" unless absolutely no data exists.\n\nIf partial data is available, return that instead of failing.",
+          "inputModeration": ""
+        },
+        "outputAnchors": [
+          {
+            "id": "conversationalRetrievalQAChain_0-output-conversationalRetrievalQAChain-ConversationalRetrievalQAChain|BaseChain|Runnable",
+            "name": "conversationalRetrievalQAChain",
+            "label": "ConversationalRetrievalQAChain",
+            "description": "Document QA - built on RetrievalQAChain to provide a chat history component",
+            "type": "ConversationalRetrievalQAChain | BaseChain | Runnable"
+          }
+        ],
+        "outputs": {},
+        "selected": false
+      },
+      "width": 300,
+      "height": 538,
+      "selected": false,
+      "positionAbsolute": {
+        "x": -184.98366011244465,
+        "y": 279.8060071973559
+      },
+      "dragging": false
+    },
+    {
+      "id": "customDocumentLoader_0",
+      "position": {
+        "x": 210.45021204193938,
+        "y": 242.1846626154749
+      },
+      "type": "customNode",
+      "data": {
+        "id": "customDocumentLoader_0",
+        "label": "Custom Document Loader",
+        "version": 1,
+        "name": "customDocumentLoader",
+        "type": "Document",
+        "baseClasses": [
+          "Document"
+        ],
+        "category": "Document Loaders",
+        "description": "Custom function for loading documents",
+        "inputParams": [
+          {
+            "label": "Input Variables",
+            "name": "functionInputVariables",
+            "description": "Input variables can be used in the function with prefix $. For example: $var",
+            "type": "json",
+            "optional": true,
+            "acceptVariable": true,
+            "list": true,
+            "id": "customDocumentLoader_0-input-functionInputVariables-json",
+            "display": true
+          },
+          {
+            "label": "Javascript Function",
+            "name": "javascriptFunction",
+            "type": "code",
+            "description": "Must return an array of document objects containing metadata and pageContent if \"Document\" is selected in the output. If \"Text\" is selected in the output, it must return a string.",
+            "placeholder": "return [\n  {\n    pageContent: 'Document Content',\n    metadata: {\n      title: 'Document Title',\n    }\n  }\n]",
+            "id": "customDocumentLoader_0-input-javascriptFunction-code",
+            "display": true
+          }
+        ],
+        "inputAnchors": [],
+        "inputs": {
+          "functionInputVariables": "",
+          "javascriptFunction": "const fetch = require(\"node-fetch\");\n\nconst DB_BASE = \"https://ruler:ruler@192.168.57.254:5984/new_pine\";\nconst FETCH_URL = `${DB_BASE}/_all_docs?include_docs=true`;\n\nfunction stableSortObject(obj) {\n  if (obj === null || typeof obj !== \"object\") return obj;\n  if (Array.isArray(obj)) return obj.map(stableSortObject);\n\n  return Object.keys(obj)\n    .sort()\n    .reduce((acc, key) => {\n      acc[key] = stableSortObject(obj[key]);\n      return acc;\n    }, {});\n}\n\nfunction stableValue(value) {\n  if (value === null || value === undefined) return \"\";\n  if (typeof value !== \"object\") return String(value);\n  return JSON.stringify(stableSortObject(value));\n}\n\nasync function loadDocuments() {\n  const res = await fetch(FETCH_URL, {\n    method: \"GET\",\n    headers: {\n      \"Accept\": \"application/json\"\n    }\n  });\n\n  if (!res.ok) {\n    const txt = await res.text();\n    throw new Error(`CouchDB fetch failed: ${res.status} ${res.statusText} - ${txt}`);\n  }\n\n  const data = await res.json();\n\n  const docs = (data.rows || [])\n    .map(row => row.doc)\n    .filter(Boolean)\n    .filter(doc => doc._id && !String(doc._id).startsWith(\"_design/\"));\n\n  const documents = docs.map((doc) => {\n    const sortedKeys = Object.keys(doc).sort();\n\n    const pageContent = sortedKeys\n      .map((key) => `${key}: ${stableValue(doc[key])}`)\n      .join(\"\\n\");\n\n    return {\n      id: String(doc._id),   // stable unique id\n      pageContent,\n      metadata: {\n        source: `couchdb:new_pine:${doc._id}`,   // MUST not be null\n        doc_id: String(doc._id),\n        doc_rev: String(doc._rev || \"\"),\n        db_name: \"new_pine\"\n      }\n    };\n  });\n\n  console.log(\"Documents prepared:\", documents.length);\n\n  return documents;\n}\n\nreturn loadDocuments();"
+        },
+        "outputAnchors": [
+          {
+            "name": "output",
+            "label": "Output",
+            "type": "options",
+            "description": "Array of document objects containing metadata and pageContent",
+            "options": [
+              {
+                "id": "customDocumentLoader_0-output-document-Document|json",
+                "name": "document",
+                "label": "Document",
+                "description": "Array of document objects containing metadata and pageContent",
+                "type": "Document | json"
+              },
+              {
+                "id": "customDocumentLoader_0-output-text-string|json",
+                "name": "text",
+                "label": "Text",
+                "description": "Concatenated string from pageContent of documents",
+                "type": "string | json"
+              }
+            ],
+            "default": "document"
+          }
+        ],
+        "outputs": {
+          "output": "document"
+        },
+        "selected": false
+      },
+      "width": 300,
+      "height": 583,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 210.45021204193938,
+        "y": 242.1846626154749
+      },
+      "dragging": false
+    },
+    {
+      "id": "postgresRecordManager_0",
+      "position": {
+        "x": 623.8116457300507,
+        "y": 242.2954659203659
+      },
+      "type": "customNode",
+      "data": {
+        "id": "postgresRecordManager_0",
+        "label": "Postgres Record Manager",
+        "version": 1,
+        "name": "postgresRecordManager",
+        "type": "Postgres RecordManager",
+        "baseClasses": [
+          "Postgres RecordManager",
+          "RecordManager"
+        ],
+        "category": "Record Manager",
+        "description": "Use Postgres to keep track of document writes into the vector databases",
+        "inputParams": [
+          {
+            "label": "Connect Credential",
+            "name": "credential",
+            "type": "credential",
+            "credentialNames": [
+              "PostgresApi"
+            ],
+            "optional": false,
+            "id": "postgresRecordManager_0-input-credential-credential",
+            "display": true
+          },
+          {
+            "label": "Host",
+            "name": "host",
+            "type": "string",
+            "optional": false,
+            "id": "postgresRecordManager_0-input-host-string",
+            "display": true
+          },
+          {
+            "label": "Database",
+            "name": "database",
+            "type": "string",
+            "optional": false,
+            "id": "postgresRecordManager_0-input-database-string",
+            "display": true
+          },
+          {
+            "label": "Port",
+            "name": "port",
+            "type": "number",
+            "placeholder": "5432",
+            "optional": true,
+            "id": "postgresRecordManager_0-input-port-number",
+            "display": true
+          },
+          {
+            "label": "SSL",
+            "name": "ssl",
+            "description": "Use SSL to connect to Postgres",
+            "type": "boolean",
+            "additionalParams": true,
+            "optional": true,
+            "id": "postgresRecordManager_0-input-ssl-boolean",
+            "display": true
+          },
+          {
+            "label": "Additional Connection Configuration",
+            "name": "additionalConfig",
+            "type": "json",
+            "additionalParams": true,
+            "optional": true,
+            "id": "postgresRecordManager_0-input-additionalConfig-json",
+            "display": true
+          },
+          {
+            "label": "Table Name",
+            "name": "tableName",
+            "type": "string",
+            "placeholder": "upsertion_records",
+            "additionalParams": true,
+            "optional": true,
+            "id": "postgresRecordManager_0-input-tableName-string",
+            "display": true
+          },
+          {
+            "label": "Namespace",
+            "name": "namespace",
+            "type": "string",
+            "description": "If not specified, chatflowid will be used",
+            "additionalParams": true,
+            "optional": true,
+            "id": "postgresRecordManager_0-input-namespace-string",
+            "display": true
+          },
+          {
+            "label": "Cleanup",
+            "name": "cleanup",
+            "type": "options",
+            "description": "Read more on the difference between different cleanup methods <a target=\"_blank\" href=\"https://js.langchain.com/docs/modules/data_connection/indexing/#deletion-modes\">here</a>",
+            "options": [
+              {
+                "label": "None",
+                "name": "none",
+                "description": "No clean up of old content"
+              },
+              {
+                "label": "Incremental",
+                "name": "incremental",
+                "description": "Delete previous versions of the content if content of the source document has changed. Important!! SourceId Key must be specified and document metadata must contains the specified key"
+              },
+              {
+                "label": "Full",
+                "name": "full",
+                "description": "Same as incremental, but if the source document has been deleted, it will be deleted from vector store as well, incremental mode will not."
+              }
+            ],
+            "additionalParams": true,
+            "default": "none",
+            "id": "postgresRecordManager_0-input-cleanup-options",
+            "display": true
+          },
+          {
+            "label": "SourceId Key",
+            "name": "sourceIdKey",
+            "type": "string",
+            "description": "Key used to get the true source of document, to be compared against the record. Document metadata must contains SourceId Key",
+            "default": "source",
+            "placeholder": "source",
+            "additionalParams": true,
+            "optional": true,
+            "id": "postgresRecordManager_0-input-sourceIdKey-string",
+            "display": true
+          }
+        ],
+        "inputAnchors": [],
+        "inputs": {
+          "host": "192.168.58.194",
+          "database": "d_csp_db",
+          "port": "5757",
+          "ssl": "",
+          "additionalConfig": "",
+          "tableName": "",
+          "namespace": "",
+          "cleanup": "incremental",
+          "sourceIdKey": "source"
+        },
+        "outputAnchors": [
+          {
+            "id": "postgresRecordManager_0-output-postgresRecordManager-Postgres RecordManager|RecordManager",
+            "name": "postgresRecordManager",
+            "label": "Postgres RecordManager",
+            "description": "Use Postgres to keep track of document writes into the vector databases",
+            "type": "Postgres RecordManager | RecordManager"
+          }
+        ],
+        "outputs": {},
+        "selected": false
+      },
+      "width": 300,
+      "height": 631,
+      "positionAbsolute": {
+        "x": 623.8116457300507,
+        "y": 242.2954659203659
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "cohereEmbeddings_0",
+      "position": {
+        "x": 1395.1311489019092,
+        "y": 377.124147787339
+      },
+      "type": "customNode",
+      "data": {
+        "id": "cohereEmbeddings_0",
+        "label": "Cohere Embeddings",
+        "version": 3,
+        "name": "cohereEmbeddings",
+        "type": "CohereEmbeddings",
+        "baseClasses": [
+          "CohereEmbeddings",
+          "Embeddings"
+        ],
+        "category": "Embeddings",
+        "description": "Cohere API to generate embeddings for a given text",
+        "inputParams": [
+          {
+            "label": "Connect Credential",
+            "name": "credential",
+            "type": "credential",
+            "credentialNames": [
+              "cohereApi"
+            ],
+            "id": "cohereEmbeddings_0-input-credential-credential",
+            "display": true
+          },
+          {
+            "label": "Model Name",
+            "name": "modelName",
+            "type": "asyncOptions",
+            "loadMethod": "listModels",
+            "default": "embed-english-v2.0",
+            "id": "cohereEmbeddings_0-input-modelName-asyncOptions",
+            "display": true
+          },
+          {
+            "label": "Type",
+            "name": "inputType",
+            "type": "options",
+            "description": "Specifies the type of input passed to the model. Required for embedding models v3 and higher. <a target=\"_blank\" href=\"https://docs.cohere.com/reference/embed\">Official Docs</a>",
+            "options": [
+              {
+                "label": "search_document",
+                "name": "search_document",
+                "description": "Use this to encode documents for embeddings that you store in a vector database for search use-cases"
+              },
+              {
+                "label": "search_query",
+                "name": "search_query",
+                "description": "Use this when you query your vector DB to find relevant documents."
+              },
+              {
+                "label": "classification",
+                "name": "classification",
+                "description": "Use this when you use the embeddings as an input to a text classifier"
+              },
+              {
+                "label": "clustering",
+                "name": "clustering",
+                "description": "Use this when you want to cluster the embeddings."
+              }
+            ],
+            "default": "search_query",
+            "optional": true,
+            "id": "cohereEmbeddings_0-input-inputType-options",
+            "display": true
+          }
+        ],
+        "inputAnchors": [],
+        "inputs": {
+          "modelName": "embed-multilingual-v3.0",
+          "inputType": "search_query"
+        },
+        "outputAnchors": [
+          {
+            "id": "cohereEmbeddings_0-output-cohereEmbeddings-CohereEmbeddings|Embeddings",
+            "name": "cohereEmbeddings",
+            "label": "CohereEmbeddings",
+            "description": "Cohere API to generate embeddings for a given text",
+            "type": "CohereEmbeddings | Embeddings"
+          }
+        ],
+        "outputs": {},
+        "selected": false
+      },
+      "width": 300,
+      "height": 473,
+      "positionAbsolute": {
+        "x": 1395.1311489019092,
+        "y": 377.124147787339
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "bufferWindowMemory_0",
+      "position": {
+        "x": 2182.5493413770287,
+        "y": 361.58227259469373
+      },
+      "type": "customNode",
+      "data": {
+        "id": "bufferWindowMemory_0",
+        "label": "Buffer Window Memory",
+        "version": 2,
+        "name": "bufferWindowMemory",
+        "type": "BufferWindowMemory",
+        "baseClasses": [
+          "BufferWindowMemory",
+          "BaseChatMemory",
+          "BaseMemory"
+        ],
+        "category": "Memory",
+        "description": "Uses a window of size k to surface the last k back-and-forth to use as memory",
+        "inputParams": [
+          {
+            "label": "Size",
+            "name": "k",
+            "type": "number",
+            "default": "4",
+            "description": "Window of size k to surface the last k back-and-forth to use as memory.",
+            "id": "bufferWindowMemory_0-input-k-number",
+            "display": true
+          },
+          {
+            "label": "Session Id",
+            "name": "sessionId",
+            "type": "string",
+            "description": "If not specified, a random id will be used. Learn <a target=\"_blank\" href=\"[AUTONOMOUS_DOCS]/memory#ui-and-embedded-chat\">more</a>",
+            "default": "",
+            "optional": true,
+            "additionalParams": true,
+            "id": "bufferWindowMemory_0-input-sessionId-string",
+            "display": true
+          },
+          {
+            "label": "Memory Key",
+            "name": "memoryKey",
+            "type": "string",
+            "default": "chat_history",
+            "additionalParams": true,
+            "id": "bufferWindowMemory_0-input-memoryKey-string",
+            "display": true
+          }
+        ],
+        "inputAnchors": [],
+        "inputs": {
+          "k": "4",
+          "sessionId": "",
+          "memoryKey": "chat_history"
+        },
+        "outputAnchors": [
+          {
+            "id": "bufferWindowMemory_0-output-bufferWindowMemory-BufferWindowMemory|BaseChatMemory|BaseMemory",
+            "name": "bufferWindowMemory",
+            "label": "BufferWindowMemory",
+            "description": "Uses a window of size k to surface the last k back-and-forth to use as memory",
+            "type": "BufferWindowMemory | BaseChatMemory | BaseMemory"
+          }
+        ],
+        "outputs": {},
+        "selected": false
+      },
+      "width": 300,
+      "height": 337,
+      "positionAbsolute": {
+        "x": 2182.5493413770287,
+        "y": 361.58227259469373
+      },
+      "selected": false,
+      "dragging": false
+    },
+    {
+      "id": "pinecone_0",
+      "position": {
+        "x": 1007.3526159662957,
+        "y": 270.8483846027231
+      },
+      "type": "customNode",
+      "data": {
+        "id": "pinecone_0",
+        "label": "Pinecone",
+        "version": 5,
+        "name": "pinecone",
+        "type": "Pinecone",
+        "baseClasses": [
+          "Pinecone",
+          "VectorStoreRetriever",
+          "BaseRetriever"
+        ],
+        "category": "Vector Stores",
+        "description": "Upsert embedded data and perform similarity or mmr search using Pinecone, a leading fully managed hosted vector database",
+        "inputParams": [
+          {
+            "label": "Connect Credential",
+            "name": "credential",
+            "type": "credential",
+            "credentialNames": [
+              "pineconeApi"
+            ],
+            "id": "pinecone_0-input-credential-credential",
+            "display": true
+          },
+          {
+            "label": "Pinecone Index",
+            "name": "pineconeIndex",
+            "type": "string",
+            "id": "pinecone_0-input-pineconeIndex-string",
+            "display": true
+          },
+          {
+            "label": "Pinecone Namespace",
+            "name": "pineconeNamespace",
+            "type": "string",
+            "placeholder": "my-first-namespace",
+            "additionalParams": true,
+            "optional": true,
+            "id": "pinecone_0-input-pineconeNamespace-string",
+            "display": true
+          },
+          {
+            "label": "File Upload",
+            "name": "fileUpload",
+            "description": "Allow file upload on the chat",
+            "hint": {
+              "label": "How to use",
+              "value": "\n**File Upload**\n\nThis allows file upload on the chat. Uploaded files will be upserted on the fly to the vector store.\n\n**Note:**\n- You can only turn on file upload for one vector store at a time.\n- At least one Document Loader node should be connected to the document input.\n- Document Loader should be file types like PDF, DOCX, TXT, etc.\n\n**How it works**\n- Uploaded files will have the metadata updated with the chatId.\n- This will allow the file to be associated with the chatId.\n- When querying, metadata will be filtered by chatId to retrieve files associated with the chatId.\n"
+            },
+            "type": "boolean",
+            "additionalParams": true,
+            "optional": true,
+            "id": "pinecone_0-input-fileUpload-boolean",
+            "display": true
+          },
+          {
+            "label": "Pinecone Text Key",
+            "name": "pineconeTextKey",
+            "description": "The key in the metadata for storing text. Default to `text`",
+            "type": "string",
+            "placeholder": "text",
+            "additionalParams": true,
+            "optional": true,
+            "id": "pinecone_0-input-pineconeTextKey-string",
+            "display": true
+          },
+          {
+            "label": "Pinecone Metadata Filter",
+            "name": "pineconeMetadataFilter",
+            "type": "json",
+            "optional": true,
+            "additionalParams": true,
+            "acceptVariable": true,
+            "id": "pinecone_0-input-pineconeMetadataFilter-json",
+            "display": true
+          },
+          {
+            "label": "Top K",
+            "name": "topK",
+            "description": "Number of top results to fetch. Default to 4",
+            "placeholder": "4",
+            "type": "number",
+            "additionalParams": true,
+            "optional": true,
+            "id": "pinecone_0-input-topK-number",
+            "display": true
+          },
+          {
+            "label": "Search Type",
+            "name": "searchType",
+            "type": "options",
+            "default": "similarity",
+            "options": [
+              {
+                "label": "Similarity",
+                "name": "similarity"
+              },
+              {
+                "label": "Max Marginal Relevance",
+                "name": "mmr"
+              }
+            ],
+            "additionalParams": true,
+            "optional": true,
+            "id": "pinecone_0-input-searchType-options",
+            "display": true
+          },
+          {
+            "label": "Fetch K (for MMR Search)",
+            "name": "fetchK",
+            "description": "Number of initial documents to fetch for MMR reranking. Default to 20. Used only when the search type is MMR",
+            "placeholder": "20",
+            "type": "number",
+            "additionalParams": true,
+            "optional": true,
+            "id": "pinecone_0-input-fetchK-number",
+            "display": true
+          },
+          {
+            "label": "Lambda (for MMR Search)",
+            "name": "lambda",
+            "description": "Number between 0 and 1 that determines the degree of diversity among the results, where 0 corresponds to maximum diversity and 1 to minimum diversity. Used only when the search type is MMR",
+            "placeholder": "0.5",
+            "type": "number",
+            "additionalParams": true,
+            "optional": true,
+            "id": "pinecone_0-input-lambda-number",
+            "display": true
+          }
+        ],
+        "inputAnchors": [
+          {
+            "label": "Document",
+            "name": "document",
+            "type": "Document",
+            "list": true,
+            "optional": true,
+            "id": "pinecone_0-input-document-Document",
+            "display": true
+          },
+          {
+            "label": "Embeddings",
+            "name": "embeddings",
+            "type": "Embeddings",
+            "id": "pinecone_0-input-embeddings-Embeddings",
+            "display": true
+          },
+          {
+            "label": "Record Manager",
+            "name": "recordManager",
+            "type": "RecordManager",
+            "description": "Keep track of the record to prevent duplication",
+            "optional": true,
+            "id": "pinecone_0-input-recordManager-RecordManager",
+            "display": true
+          }
+        ],
+        "inputs": {
+          "document": [
+            "{{customDocumentLoader_0.data.instance}}"
+          ],
+          "embeddings": "{{cohereEmbeddings_0.data.instance}}",
+          "recordManager": "{{postgresRecordManager_0.data.instance}}",
+          "pineconeIndex": "newpine",
+          "pineconeNamespace": "new_05",
+          "fileUpload": "",
+          "pineconeTextKey": "",
+          "pineconeMetadataFilter": "",
+          "topK": "",
+          "searchType": "similarity",
+          "fetchK": "",
+          "lambda": ""
+        },
+        "outputAnchors": [
+          {
+            "name": "output",
+            "label": "Output",
+            "type": "options",
+            "description": "",
+            "options": [
+              {
+                "id": "pinecone_0-output-retriever-Pinecone|VectorStoreRetriever|BaseRetriever",
+                "name": "retriever",
+                "label": "Pinecone Retriever",
+                "description": "",
+                "type": "Pinecone | VectorStoreRetriever | BaseRetriever"
+              },
+              {
+                "id": "pinecone_0-output-vectorStore-Pinecone|VectorStore",
+                "name": "vectorStore",
+                "label": "Pinecone Vector Store",
+                "description": "",
+                "type": "Pinecone | VectorStore"
+              }
+            ],
+            "default": "retriever"
+          }
+        ],
+        "outputs": {
+          "output": "retriever"
+        },
+        "selected": false
+      },
+      "width": 300,
+      "height": 612,
+      "selected": false,
+      "positionAbsolute": {
+        "x": 1007.3526159662957,
+        "y": 270.8483846027231
+      },
+      "dragging": false
+    },
+    {
+      "id": "groqChat_0",
+      "position": {
+        "x": 1788.6312749265826,
+        "y": 304.3015843174397
+      },
+      "type": "customNode",
+      "data": {
+        "id": "groqChat_0",
+        "label": "GroqChat",
+        "version": 4,
+        "name": "groqChat",
+        "type": "GroqChat",
+        "baseClasses": [
+          "GroqChat",
+          "BaseChatModel",
+          "BaseLanguageModel",
+          "Runnable"
+        ],
+        "category": "Chat Models",
+        "description": "Wrapper around Groq API with LPU Inference Engine",
+        "inputParams": [
+          {
+            "label": "Connect Credential",
+            "name": "credential",
+            "type": "credential",
+            "credentialNames": [
+              "groqApi"
+            ],
+            "optional": true,
+            "id": "groqChat_0-input-credential-credential",
+            "display": true
+          },
+          {
+            "label": "Model Name",
+            "name": "modelName",
+            "type": "asyncOptions",
+            "loadMethod": "listModels",
+            "placeholder": "llama3-70b-8192",
+            "id": "groqChat_0-input-modelName-asyncOptions",
+            "display": true
+          },
+          {
+            "label": "Temperature",
+            "name": "temperature",
+            "type": "number",
+            "step": 0.1,
+            "default": 0.9,
+            "optional": true,
+            "id": "groqChat_0-input-temperature-number",
+            "display": true
+          },
+          {
+            "label": "Max Tokens",
+            "name": "maxTokens",
+            "type": "number",
+            "step": 1,
+            "optional": true,
+            "additionalParams": true,
+            "id": "groqChat_0-input-maxTokens-number",
+            "display": true
+          },
+          {
+            "label": "Streaming",
+            "name": "streaming",
+            "type": "boolean",
+            "default": true,
+            "optional": true,
+            "id": "groqChat_0-input-streaming-boolean",
+            "display": true
+          }
+        ],
+        "inputAnchors": [
+          {
+            "label": "Cache",
+            "name": "cache",
+            "type": "BaseCache",
+            "optional": true,
+            "id": "groqChat_0-input-cache-BaseCache",
+            "display": true
+          }
+        ],
+        "inputs": {
+          "cache": "",
+          "modelName": "openai/gpt-oss-120b",
+          "temperature": "0.2",
+          "maxTokens": "",
+          "streaming": true
+        },
+        "outputAnchors": [
+          {
+            "id": "groqChat_0-output-groqChat-GroqChat|BaseChatModel|BaseLanguageModel|Runnable",
+            "name": "groqChat",
+            "label": "GroqChat",
+            "description": "Wrapper around Groq API with LPU Inference Engine",
+            "type": "GroqChat | BaseChatModel | BaseLanguageModel | Runnable"
+          }
+        ],
+        "outputs": {},
+        "selected": false
+      },
+      "width": 300,
+      "height": 676,
+      "selected": false,
+      "dragging": false,
+      "positionAbsolute": {
+        "x": 1788.6312749265826,
+        "y": 304.3015843174397
+      }
+    }
+  ],
+  "edges": [
+    {
+      "source": "bufferWindowMemory_0",
+      "sourceHandle": "bufferWindowMemory_0-output-bufferWindowMemory-BufferWindowMemory|BaseChatMemory|BaseMemory",
+      "target": "conversationalRetrievalQAChain_0",
+      "targetHandle": "conversationalRetrievalQAChain_0-input-memory-BaseMemory",
+      "type": "buttonedge",
+      "id": "bufferWindowMemory_0-bufferWindowMemory_0-output-bufferWindowMemory-BufferWindowMemory|BaseChatMemory|BaseMemory-conversationalRetrievalQAChain_0-conversationalRetrievalQAChain_0-input-memory-BaseMemory"
+    },
+    {
+      "source": "postgresRecordManager_0",
+      "sourceHandle": "postgresRecordManager_0-output-postgresRecordManager-Postgres RecordManager|RecordManager",
+      "target": "pinecone_0",
+      "targetHandle": "pinecone_0-input-recordManager-RecordManager",
+      "type": "buttonedge",
+      "id": "postgresRecordManager_0-postgresRecordManager_0-output-postgresRecordManager-Postgres RecordManager|RecordManager-pinecone_0-pinecone_0-input-recordManager-RecordManager"
+    },
+    {
+      "source": "cohereEmbeddings_0",
+      "sourceHandle": "cohereEmbeddings_0-output-cohereEmbeddings-CohereEmbeddings|Embeddings",
+      "target": "pinecone_0",
+      "targetHandle": "pinecone_0-input-embeddings-Embeddings",
+      "type": "buttonedge",
+      "id": "cohereEmbeddings_0-cohereEmbeddings_0-output-cohereEmbeddings-CohereEmbeddings|Embeddings-pinecone_0-pinecone_0-input-embeddings-Embeddings"
+    },
+    {
+      "source": "customDocumentLoader_0",
+      "sourceHandle": "customDocumentLoader_0-output-document-Document|json",
+      "target": "pinecone_0",
+      "targetHandle": "pinecone_0-input-document-Document",
+      "type": "buttonedge",
+      "id": "customDocumentLoader_0-customDocumentLoader_0-output-document-Document|json-pinecone_0-pinecone_0-input-document-Document"
+    },
+    {
+      "source": "pinecone_0",
+      "sourceHandle": "pinecone_0-output-retriever-Pinecone|VectorStoreRetriever|BaseRetriever",
+      "target": "conversationalRetrievalQAChain_0",
+      "targetHandle": "conversationalRetrievalQAChain_0-input-vectorStoreRetriever-BaseRetriever",
+      "type": "buttonedge",
+      "id": "pinecone_0-pinecone_0-output-retriever-Pinecone|VectorStoreRetriever|BaseRetriever-conversationalRetrievalQAChain_0-conversationalRetrievalQAChain_0-input-vectorStoreRetriever-BaseRetriever"
+    },
+    {
+      "source": "groqChat_0",
+      "sourceHandle": "groqChat_0-output-groqChat-GroqChat|BaseChatModel|BaseLanguageModel|Runnable",
+      "target": "conversationalRetrievalQAChain_0",
+      "targetHandle": "conversationalRetrievalQAChain_0-input-model-BaseChatModel",
+      "type": "buttonedge",
+      "id": "groqChat_0-groqChat_0-output-groqChat-GroqChat|BaseChatModel|BaseLanguageModel|Runnable-conversationalRetrievalQAChain_0-conversationalRetrievalQAChain_0-input-model-BaseChatModel"
+    }
+  ]
+}
