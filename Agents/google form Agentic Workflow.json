@@ -10,7 +10,7 @@
       "data": {
         "id": "startAgentflow_0",
         "label": "Start",
-        "version": 1.1,
+        "version": 1.4,
         "name": "startAgentflow",
         "type": "Start",
         "color": "#7EE787",
@@ -73,9 +73,63 @@
             },
             "array": [
               {
+                "label": "Payload type",
+                "name": "payloadType",
+                "type": "options",
+                "optional": true,
+                "placeholder": "Select payload type",
+                "options": [
+                  {
+                    "label": "Layout Fields",
+                    "name": "layoutFields",
+                    "description": "Pass layout fields as parameters to fetch layout insights"
+                  },
+                  {
+                    "label": "Static",
+                    "name": "static",
+                    "description": "Pass the layout context along with the prompt to fetch layout insights"
+                  },
+                  {
+                    "label": "Meta Info",
+                    "name": "metaInfo",
+                    "description": "Pass the layout name or primary object directly to fetch layout insights"
+                  }
+                ]
+              },
+              {
+                "label": "Mandatory",
+                "name": "mandatory",
+                "type": "options",
+                "show": {
+                  "formInputTypes[$index].payloadType": [
+                    "layoutFields",
+                    "static",
+                    "metaInfo"
+                  ]
+                },
+                "options": [
+                  {
+                    "label": "No",
+                    "name": "no"
+                  },
+                  {
+                    "label": "Yes",
+                    "name": "yes"
+                  }
+                ],
+                "default": "no",
+                "description": "When Yes, this form field is required when the user submits the form and is validated during flow execution."
+              },
+              {
                 "label": "Type",
                 "name": "type",
                 "type": "options",
+                "show": {
+                  "formInputTypes[$index].payloadType": [
+                    "layoutFields",
+                    "static"
+                  ]
+                },
                 "options": [
                   {
                     "label": "String",
@@ -92,29 +146,72 @@
                   {
                     "label": "Options",
                     "name": "options"
+                  },
+                  {
+                    "label": "Array",
+                    "name": "array",
+                    "description": "Value is a JavaScript array; elements can be strings, numbers, booleans, or objects. Use {{ $form.fieldName }} in nodes to access."
                   }
                 ],
                 "default": "string"
               },
               {
+                "label": "Meta Category",
+                "name": "metaCategory",
+                "type": "options",
+                "optional": true,
+                "placeholder": "Select meta category",
+                "show": {
+                  "formInputTypes[$index].payloadType": "metaInfo"
+                },
+                "options": [
+                  {
+                    "label": "SAB Object",
+                    "name": "sabObject"
+                  },
+                  {
+                    "label": "SAB Layout",
+                    "name": "sabLayout"
+                  }
+                ]
+              },
+              {
                 "label": "Label",
                 "name": "label",
                 "type": "string",
-                "placeholder": "Label for the input"
+                "placeholder": "Label for the input",
+                "show": {
+                  "formInputTypes[$index].payloadType": [
+                    "layoutFields",
+                    "static",
+                    "metaInfo"
+                  ]
+                }
               },
               {
                 "label": "Variable Name",
                 "name": "name",
                 "type": "string",
                 "placeholder": "Variable name for the input (must be camel case)",
-                "description": "Variable name must be camel case. For example: firstName, lastName, etc."
+                "description": "Variable name must be camel case. For example: firstName, lastName, etc.",
+                "show": {
+                  "formInputTypes[$index].payloadType": [
+                    "layoutFields",
+                    "static",
+                    "metaInfo"
+                  ]
+                }
               },
               {
-                "label": "Add Options",
+                "label": "Options",
                 "name": "addOptions",
                 "type": "array",
+                "description": "When Type is Options, add each allowed choice here.",
                 "show": {
                   "formInputTypes[$index].type": "options"
+                },
+                "hide": {
+                  "formInputTypes[$index].payloadType": "metaInfo"
                 },
                 "array": [
                   {
@@ -191,7 +288,7 @@
         "outputs": {},
         "selected": false
       },
-      "width": 103,
+      "width": 104,
       "height": 66,
       "selected": false,
       "positionAbsolute": {
@@ -209,7 +306,7 @@
       "data": {
         "id": "agentAgentflow_1",
         "label": "Agent 1",
-        "version": 2.4,
+        "version": 2.5,
         "name": "agentAgentflow",
         "type": "Agent",
         "color": "#4DD0E1",
@@ -620,6 +717,43 @@
             "display": true
           },
           {
+            "label": "Convert Structured JSON Output to Toon format",
+            "name": "convertStructuredOutputToToon",
+            "type": "boolean",
+            "default": false,
+            "description": "Convert the entire structured JSON result to a TOON string.<br/><br/>Input JSON:<br/><pre>{ \"answer\": \"42\", \"reason\": \"calculated\" }</pre><br/>Output TOON:<br/><pre>answer: 42<br/>reason: calculated</pre><br/>Requires at least one JSON Structured Output entry.",
+            "optional": true,
+            "id": "agentAgentflow_1-input-convertStructuredOutputToToon-boolean",
+            "display": true
+          },
+          {
+            "label": "TOON Delimiter",
+            "name": "structuredOutputToToonDelimiter",
+            "type": "options",
+            "default": ",",
+            "options": [
+              {
+                "label": "Comma (,)",
+                "name": ","
+              },
+              {
+                "label": "Tab (\\t)",
+                "name": "\t"
+              },
+              {
+                "label": "Pipe (|)",
+                "name": "|"
+              }
+            ],
+            "show": {
+              "convertStructuredOutputToToon": true
+            },
+            "description": "Choose how TOON tabular values are separated when conversion is enabled.",
+            "optional": true,
+            "id": "agentAgentflow_1-input-structuredOutputToToonDelimiter-options",
+            "display": false
+          },
+          {
             "label": "Update Flow State",
             "name": "agentUpdateState",
             "description": "Update runtime state during the execution of the workflow",
@@ -654,6 +788,9 @@
               "content": "<p>You are a Quiz Generator Agent.</p><p>Your task:</p><p>1) Read the FULL content from this URL using the Requests GET tool:</p><p>   https://www.w3schools.com/js/js_variables.asp</p><p>2) Understand the topic clearly.</p><p>3) Create a simple quiz based ONLY on the content from that URL.</p><p>OUTPUT RULES (VERY IMPORTANT):</p><p>- Return ONLY valid JSON.</p><p>- Do NOT return explanations.</p><p>- Do NOT return markdown.</p><p>- Do NOT add extra text before or after the JSON.</p><p>- Follow the exact output format below.</p><p>OUTPUT FORMAT:</p><p>{</p><p>  \"title\": \"Quiz title based on the page topic\",</p><p>  \"questions\": [</p><p>    {</p><p>      \"question\": \"Question text\",</p><p>      \"options\": [\"Option 1\", \"Option 2\", \"Option 3\", \"Option 4\"],</p><p>      \"correctIndex\": 0,</p><p>      \"points\": 1</p><p>    }</p><p>  ]</p><p>}</p><p>RULES:</p><p>- correctIndex must be 0-based (0,1,2,3).</p><p>- Generate minimum 5 questions.</p><p>- Questions must be simple and clear.</p><p>- Title should match the page topic.</p><p>- Use only information found in the page content.</p><p>- Return ONLY JSON.</p>"
             }
           ],
+          "agentToolsBuiltInOpenAI": "",
+          "agentToolsBuiltInGemini": "",
+          "agentToolsBuiltInAnthropic": "",
           "agentTools": [
             {
               "agentSelectedTool": "requestsGet",
@@ -673,9 +810,13 @@
           "agentKnowledgeVSEmbeddings": "",
           "agentEnableMemory": true,
           "agentMemoryType": "allMessages",
+          "agentMemoryWindowSize": "20",
+          "agentMemoryMaxTokenLimit": "2000",
           "agentUserMessage": "",
           "agentReturnResponseAs": "userMessage",
           "agentStructuredOutput": "",
+          "convertStructuredOutputToToon": "",
+          "structuredOutputToToonDelimiter": ",",
           "agentUpdateState": "",
           "agentModelConfig": {
             "cache": "",
@@ -827,7 +968,7 @@
       "data": {
         "id": "agentAgentflow_0",
         "label": "Agent 0",
-        "version": 2.4,
+        "version": 2.5,
         "name": "agentAgentflow",
         "type": "Agent",
         "color": "#4DD0E1",
@@ -1238,6 +1379,43 @@
             "display": true
           },
           {
+            "label": "Convert Structured JSON Output to Toon format",
+            "name": "convertStructuredOutputToToon",
+            "type": "boolean",
+            "default": false,
+            "description": "Convert the entire structured JSON result to a TOON string.<br/><br/>Input JSON:<br/><pre>{ \"answer\": \"42\", \"reason\": \"calculated\" }</pre><br/>Output TOON:<br/><pre>answer: 42<br/>reason: calculated</pre><br/>Requires at least one JSON Structured Output entry.",
+            "optional": true,
+            "id": "agentAgentflow_0-input-convertStructuredOutputToToon-boolean",
+            "display": true
+          },
+          {
+            "label": "TOON Delimiter",
+            "name": "structuredOutputToToonDelimiter",
+            "type": "options",
+            "default": ",",
+            "options": [
+              {
+                "label": "Comma (,)",
+                "name": ","
+              },
+              {
+                "label": "Tab (\\t)",
+                "name": "\t"
+              },
+              {
+                "label": "Pipe (|)",
+                "name": "|"
+              }
+            ],
+            "show": {
+              "convertStructuredOutputToToon": true
+            },
+            "description": "Choose how TOON tabular values are separated when conversion is enabled.",
+            "optional": true,
+            "id": "agentAgentflow_0-input-structuredOutputToToonDelimiter-options",
+            "display": false
+          },
+          {
             "label": "Update Flow State",
             "name": "agentUpdateState",
             "description": "Update runtime state during the execution of the workflow",
@@ -1272,13 +1450,48 @@
               "content": "<p>Send an email to the provided recipient email.</p><p>Email must contain ONLY this attendance link: $flow.state.attendLink</p><p>Do NOT include edit link in email.</p><p>In chat response, show:</p><p>✅ Email sent to &lt;email&gt;</p><p>🛠️ Edit Link: $flow.state.editLink</p><p>Do NOT show attendance link in chat.</p>"
             }
           ],
+          "agentToolsBuiltInOpenAI": "",
+          "agentToolsBuiltInGemini": "",
+          "agentToolsBuiltInAnthropic": "",
           "agentTools": [
             {
               "agentSelectedTool": "gmail",
               "agentSelectedToolRequiresHumanInput": "",
               "agentSelectedToolConfig": {
-                "gmailType": "messages",
-                "messageActions": "[\"sendMessage\"]",
+                "gmailType": "",
+                "draftActions": "",
+                "messageActions": "",
+                "labelActions": "",
+                "threadActions": "",
+                "draftMaxResults": 100,
+                "draftTo": "",
+                "draftSubject": "",
+                "draftBody": "",
+                "draftCc": "",
+                "draftBcc": "",
+                "draftId": "",
+                "draftUpdateTo": "",
+                "draftUpdateSubject": "",
+                "draftUpdateBody": "",
+                "messageMaxResults": 100,
+                "messageQuery": "",
+                "messageTo": "",
+                "messageSubject": "",
+                "messageBody": "",
+                "messageCc": "",
+                "messageBcc": "",
+                "messageId": "",
+                "attachmentId": "",
+                "messageAddLabelIds": "",
+                "messageRemoveLabelIds": "",
+                "labelName": "",
+                "labelColor": "",
+                "labelId": "",
+                "threadMaxResults": 100,
+                "threadQuery": "",
+                "threadId": "",
+                "threadAddLabelIds": "",
+                "threadRemoveLabelIds": "",
                 "agentSelectedTool": "gmail"
               }
             }
@@ -1287,9 +1500,13 @@
           "agentKnowledgeVSEmbeddings": "",
           "agentEnableMemory": true,
           "agentMemoryType": "allMessages",
+          "agentMemoryWindowSize": "20",
+          "agentMemoryMaxTokenLimit": "2000",
           "agentUserMessage": "<p><span class=\"variable\" data-type=\"mention\" data-id=\"customFunctionAgentflow_0\" data-label=\"customFunctionAgentflow_0\">{{ customFunctionAgentflow_0 }}</span> </p>",
           "agentReturnResponseAs": "userMessage",
           "agentStructuredOutput": "",
+          "convertStructuredOutputToToon": "",
+          "structuredOutputToToonDelimiter": ",",
           "agentUpdateState": "",
           "agentModelConfig": {
             "cache": "",
@@ -1298,8 +1515,7 @@
             "maxTokens": "",
             "streaming": true,
             "agentModel": "groqChat"
-          },
-          "undefined": ""
+          }
         },
         "outputAnchors": [
           {
@@ -1431,7 +1647,7 @@
         "selected": false
       },
       "type": "agentFlow",
-      "width": 167,
+      "width": 168,
       "height": 80,
       "selected": false,
       "positionAbsolute": {
